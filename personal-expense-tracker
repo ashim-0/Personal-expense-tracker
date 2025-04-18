@@ -1,0 +1,134 @@
+personal-expense-tracker/
+├── index.html
+├── style.css
+└── script.js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Personal Expense Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Expense Tracker</h1>
+    <div class="form">
+      <input type="text" id="description" placeholder="Description" />
+      <input type="number" id="amount" placeholder="Amount" />
+      <button onclick="addExpense()">Add Expense</button>
+    </div>
+    <ul id="expense-list"></ul>
+    <div class="total">
+      Total: $<span id="total">0</span>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f2f2f2;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 500px;
+  margin: 60px auto;
+  background: white;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#expense-list {
+  list-style: none;
+  padding: 0;
+}
+
+#expense-list li {
+  background: #f9f9f9;
+  margin-bottom: 8px;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.total {
+  font-weight: bold;
+  text-align: right;
+  font-size: 18px;
+  margin-top: 20px;
+}
+let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+function addExpense() {
+  const description = document.getElementById('description').value.trim();
+  const amount = parseFloat(document.getElementById('amount').value);
+
+  if (!description || isNaN(amount)) {
+    alert('Please enter a valid description and amount.');
+    return;
+  }
+
+  expenses.push({ description, amount });
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+  document.getElementById('description').value = '';
+  document.getElementById('amount').value = '';
+  renderExpenses();
+}
+
+function renderExpenses() {
+  const list = document.getElementById('expense-list');
+  list.innerHTML = '';
+  let total = 0;
+
+  expenses.forEach((exp, index) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      ${exp.description}: $${exp.amount.toFixed(2)}
+      <button onclick="removeExpense(${index})">X</button>
+    `;
+    list.appendChild(li);
+    total += exp.amount;
+  });
+
+  document.getElementById('total').innerText = total.toFixed(2);
+}
+
+function removeExpense(index) {
+  expenses.splice(index, 1);
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+  renderExpenses();
+}
+
+window.onload = renderExpenses;
